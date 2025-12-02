@@ -25,3 +25,4 @@ proyecto_ispplus/
 │  └─ indicadores_service.py# Lógica para consultar y guardar indicadores económicos
 └─ integraciones/
    └─ indicadores_client.py # Cliente HTTP para consumir API externa de indicadores
+
