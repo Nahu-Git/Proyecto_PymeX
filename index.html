@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Portal ISP - Planes y Gestión</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        body {
+            background: #050816;
+            color: #f5f5f5;
+        }
+        .hidden { display: none !important; }
+
+        /* Top bar */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            background: linear-gradient(90deg, #011627, #012840);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+        .logo span {
+            color: #00e6ff;
+        }
+        .role-selector {
+            display: flex;
+            gap: 8px;
+        }
+        .role-btn {
+            border: none;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: transparent;
+            color: #d0d0d0;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        .role-btn:hover {
+            background: rgba(255,255,255,0.08);
+            color: #ffffff;
+        }
+        .role-btn.active {
+            background: #00e6ff;
+            color: #00121f;
+            font-weight: 600;
+        }
+        .user-status {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            font-size: 0.8rem;
+        }
+        .user-status span {
+            color: #cfcfcf;
+        }
+
+        /* Buttons */
+        .btn-primary,
+        .btn-secondary,
+        .btn-link,
+        .btn-small {
+            cursor: pointer;
+            border-radius: 999px;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+        .btn-primary {
+            background: #00e6ff;
+            color: #00121f;
+            font-weight: 600;
+        }
+        .btn-primary:hover { filter: brightness(1.1); }
+        .btn-secondary {
+            background: transparent;
+            color: #f5f5f5;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.05); }
+        .btn-link {
+            background: transparent;
+            color: #00e6ff;
+            padding: 4px 0;
+            text-decoration: underline;
+        }
+        .btn-small {
+            padding: 4px 10px;
+            font-size: 0.75rem;
+        }
+        .btn-small-edit {
+            background: rgba(0,230,255,0.15);
+            color: #00e6ff;
+        }
+        .btn-small-delete {
+            background: rgba(255,60,60,0.15);
+            color: #ff5f5f;
+        }
+
+        /* Main container */
+        #app {
+            max-width: 1150px;
+            margin: 22px auto 40px;
+            padding: 0 16px;
+        }
+        .vista.hidden { display: none; }
+
+        /* Auth boxes */
+        .auth-box {
+            background: #050b18;
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 18px;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.5);
+        }
+        .auth-box h3 {
+            font-size: 1rem;
+            margin-bottom: 6px;
+        }
+        .auth-box p {
+            font-size: 0.8rem;
+            color: #bdbdbd;
+            margin-bottom: 8px;
+        }
+        .auth-forms {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0,1fr));
+            gap: 12px;
+        }
+        .auth-form {
+            background: #030712;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        .auth-form h4 {
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+        .auth-form label {
+            display: block;
+            font-size: 0.75rem;
+            margin-top: 6px;
+            margin-bottom: 2px;
+        }
+        .auth-form input {
+            width: 100%;
+            padding: 6px 8px;
+            border-radius: 8px;
+            border: 1px solid #1b2a3c;
+            background: #020713;
+            color: #f5f5f5;
+            font-size: 0.8rem;
+        }
+        .auth-form input:focus {
+            outline: none;
+            border-color: #00e6ff;
+        }
+        .auth-form .form-actions {
+            margin-top: 8px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* Banner */
+        .banner {
+            background: linear-gradient(135deg, #00e6ff, #0077ff);
+            padding: 20px 18px;
+            border-radius: 18px;
+            text-align: center;
+            color: #00121f;
+            margin-bottom: 16px;
+        }
+        .banner h1 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+        .banner p {
+            font-size: 0.9rem;
+        }
+
+        /* Empresa selector en cliente */
+        .empresa-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+        }
+        .empresa-selector select {
+            background: #020713;
+            color: #f5f5f5;
+            border-radius: 10px;
+            border: 1px solid #1b2a3c;
+            padding: 4px 8px;
+            font-size: 0.85rem;
+        }
+
+        /* Slider */
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .slider {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+        .plan-card {
+            background: radial-gradient(circle at top left, #0b1f3b, #050816);
+            border-radius: 18px;
+            padding: 18px 20px;
+            min-height: 210px;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .plan-nombre {
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+        .plan-tag {
+            font-size: 0.78rem;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: rgba(0, 230, 255, 0.15);
+            border: 1px solid rgba(0, 230, 255, 0.7);
+            color: #7bf0ff;
+        }
+        .plan-detalle {
+            margin-bottom: 10px;
+            font-size: 0.88rem;
+        }
+        .plan-detalle p { margin-bottom: 3px; }
+        .plan-precio {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 2px;
+            color: #00e6ff;
+        }
+        .plan-nota {
+            font-size: 0.78rem;
+            color: #aaaaaa;
+        }
+        .slider-arrow {
+            border: none;
+            background: rgba(255,255,255,0.03);
+            color: #ffffff;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s;
+        }
+        .slider-arrow:hover {
+            background: rgba(255,255,255,0.12);
+            transform: translateY(-1px);
+        }
+        .slider-dots {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.18);
+            cursor: pointer;
+            transition: transform 0.15s, background 0.15s;
+        }
+        .dot.active {
+            background: #00e6ff;
+            transform: scale(1.2);
+        }
+
+        .cta-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 4px;
+            flex-wrap: wrap;
+        }
+
+        .info-plan-actual {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #c9c9c9;
+            margin-bottom: 12px;
+        }
+
+        /* Vista empresa */
+        #vista-empresa h2 {
+            margin-bottom: 8px;
+        }
+        .descripcion-empresa {
+            font-size: 0.9rem;
+            color: #c3c3c3;
+            margin-bottom: 10px;
+        }
+        .empresa-layout {
+            display: grid;
+            grid-template-columns: 1.1fr 1.6fr;
+            gap: 16px;
+        }
+        .empresa-panel {
+            background: #050b18;
+            border-radius: 16px;
+            padding: 14px 16px;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.6);
+        }
+        .empresa-panel h3 {
+            margin-bottom: 8px;
+        }
+        .empresa-panel label {
+            display: block;
+            font-size: 0.8rem;
+            margin-top: 6px;
+            margin-bottom: 2px;
+        }
+        .empresa-panel input {
+            width: 100%;
+            padding: 7px 9px;
+            border-radius: 9px;
+            border: 1px solid #1b2a3c;
+            background: #020713;
+            color: #f5f5f5;
+            font-size: 0.85rem;
+        }
+        .empresa-panel input:focus {
+            outline: none;
+            border-color: #00e6ff;
+        }
+        .form-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .empresa-lista .nota {
+            font-size: 0.8rem;
+            color: #9b9b9b;
+            margin-bottom: 8px;
+        }
+        .empresa-lista table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+            margin-bottom: 6px;
+        }
+        .empresa-lista th,
+        .empresa-lista td {
+            padding: 5px 4px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .empresa-lista th {
+            font-weight: 600;
+            color: #e4e4e4;
+        }
+        .acciones-btn {
+            display: flex;
+            gap: 4px;
+        }
+
+        /* Calculadora */
+        .calc-box {
+            margin-top: 16px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .calc-box h3 {
+            margin-bottom: 6px;
+        }
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0,1fr));
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .calc-grid label {
+            font-size: 0.75rem;
+        }
+        .calc-resultados {
+            font-size: 0.8rem;
+            color: #d4d4d4;
+        }
+        .calc-resultados p { margin-bottom: 2px; }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 10px 0 18px;
+            font-size: 0.75rem;
+            color: #9b9b9b;
+        }
+
+        @media (max-width: 900px) {
+            .empresa-layout {
+                grid-template-columns: 1fr;
+            }
+            .auth-forms {
+            grid-template-columns: 1fr;
+            }
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .user-status {
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+<header class="topbar">
+    <div class="logo">ISP<span>Plus</span></div>
+    <nav class="role-selector">
+        <button class="role-btn active" data-role="cliente">Cliente</button>
+        <button class="role-btn" data-role="empresa">Empresa</button>
+        <button class="role-btn" data-role="invitado">Invitado</button>
+    </nav>
+    <div class="user-status">
+        <span id="userInfo">No has iniciado sesión</span>
+        <button id="logoutBtn" class="btn-secondary btn-small hidden">Cerrar sesión</button>
+    </div>
+</header>
+
+<main id="app">
+    <!-- VISTA CLIENTE / INVITADO -->
+    <section id="vista-publica" class="vista">
+        <div class="auth-box" id="authClienteBox">
+            <h3>Acceso Cliente</h3>
+            <p id="authClienteDesc">
+                Inicia sesión o regístrate para poder contratar o cambiar de plan. Como invitado solo podrás ver los planes.
+            </p>
+            <div class="auth-forms">
+                <div class="auth-form">
+                    <h4>Iniciar sesión (Cliente)</h4>
+                    <label>Usuario</label>
+                    <input type="text" id="loginClienteUsuario" placeholder="usuario_cliente">
+                    <label>Contraseña</label>
+                    <input type="password" id="loginClientePass" placeholder="********">
+                    <div class="form-actions">
+                        <button class="btn-primary btn-small" id="btnLoginCliente">Entrar</button>
+                    </div>
+                </div>
+                <div class="auth-form">
+                    <h4>Registrarse como cliente</h4>
+                    <label>Usuario</label>
+                    <input type="text" id="regClienteUsuario" placeholder="nuevo_cliente">
+                    <label>Contraseña</label>
+                    <input type="password" id="regClientePass" placeholder="********">
+                    <div class="form-actions">
+                        <button class="btn-secondary btn-small" id="btnRegCliente">Crear cuenta</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="banner">
+            <h1>ÚNETE YA Y CONTRATA UNO DE LOS 3 PLANES QUE TENEMOS PARA OFRECERTE</h1>
+            <p>Internet de alta velocidad, con subida y bajada dedicadas, pensado para tus clientes.</p>
+        </div>
+
+        <div class="empresa-selector" id="empresaSelectorBar">
+            <span>Empresa seleccionada:</span>
+            <select id="selectEmpresaPublica"></select>
+        </div>
+
+        <div class="slider-container">
+            <button class="slider-arrow" id="prevPlan">&#10094;</button>
+            <div class="slider">
+                <div class="plan-card" id="planCard"></div>
+            </div>
+            <button class="slider-arrow" id="nextPlan">&#10095;</button>
+        </div>
+
+        <div class="slider-dots" id="sliderDots"></div>
+
+        <div class="info-plan-actual" id="infoPlanActualCliente"></div>
+
+        <div class="cta-container">
+            <button class="btn-primary" id="btnContratarPlan">Contratar / Cambiar plan</button>
+            <button class="btn-secondary" id="btnHablarAsesor">Hablar con un asesor</button>
+        </div>
+    </section>
+
+    <!-- VISTA EMPRESA -->
+    <section id="vista-empresa" class="vista hidden">
+        <div class="auth-box" id="authEmpresaBox">
+            <h3>Acceso Empresa</h3>
+            <p>
+                Inicia sesión o regístrate como empresa para crear y gestionar tus propios planes comerciales.
+            </p>
+            <div class="auth-forms">
+                <div class="auth-form">
+                    <h4>Iniciar sesión (Empresa)</h4>
+                    <label>Usuario</label>
+                    <input type="text" id="loginEmpresaUsuario" placeholder="mi_empresa">
+                    <label>Contraseña</label>
+                    <input type="password" id="loginEmpresaPass" placeholder="********">
+                    <div class="form-actions">
+                        <button class="btn-primary btn-small" id="btnLoginEmpresa">Entrar</button>
+                    </div>
+                </div>
+                <div class="auth-form">
+                    <h4>Registrarse como empresa</h4>
+                    <label>Usuario</label>
+                    <input type="text" id="regEmpresaUsuario" placeholder="nueva_empresa">
+                    <label>Contraseña</label>
+                    <input type="password" id="regEmpresaPass" placeholder="********">
+                    <div class="form-actions">
+                        <button class="btn-secondary btn-small" id="btnRegEmpresa">Crear cuenta</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section id="empresaContenido" class="hidden">
+            <h2>Panel Empresa</h2>
+            <p class="descripcion-empresa">
+                Configura tus planes (bajada, subida, contención, clientes, precio) y usa la calculadora para simular capacidad.
+            </p>
+
+            <div class="empresa-layout">
+                <!-- Formulario Planes -->
+                <div class="empresa-panel">
+                    <h3 id="formTitle">Crear nuevo plan</h3>
+                    <label>Nombre del plan</label>
+                    <input type="text" id="planNombre" placeholder="Ej: Plan Pyme 2200">
+                    <label>Velocidad bajada (Mb)</label>
+                    <input type="number" id="planBajada" placeholder="Ej: 2200">
+                    <label>Velocidad subida (Mb)</label>
+                    <input type="number" id="planSubida" placeholder="Ej: 550">
+                    <label>Contención (formato 1:N, solo N)</label>
+                    <input type="number" id="planContencionN" placeholder="Ej: 10">
+                    <label>Capacidad máxima de clientes</label>
+                    <input type="number" id="planMaxClientes" placeholder="Ej: 100">
+                    <label>Precio mensual (CLP)</label>
+                    <input type="number" id="planPrecio" placeholder="Ej: 34990">
+                    <div class="form-actions">
+                        <button id="btnGuardarPlan" class="btn-primary btn-small">Guardar plan</button>
+                        <button id="btnCancelarEdicion" class="btn-secondary btn-small hidden">Cancelar edición</button>
+                    </div>
+
+                    <div class="calc-box">
+                        <h3>Calculadora de capacidad</h3>
+                        <p style="font-size:0.78rem; color:#bdbdbd; margin-bottom:6px;">
+                            Usa la calculadora para estimar velocidad por cliente según bajada, contención y número de clientes activos.
+                        </p>
+                        <div class="calc-grid">
+                            <div>
+                                <label>Bajada total (Mb)</label>
+                                <input type="number" id="calcBajada" placeholder="Ej: 4000">
+                            </div>
+                            <div>
+                                <label>Contención N (1:N)</label>
+                                <input type="number" id="calcContencionN" placeholder="Ej: 10">
+                            </div>
+                            <div>
+                                <label>N° clientes activos</label>
+                                <input type="number" id="calcClientesActivos" placeholder="Ej: 80">
+                            </div>
+                        </div>
+                        <button class="btn-secondary btn-small" id="btnCalcular">Calcular</button>
+                        <div class="calc-resultados" id="calcResultados"></div>
+                    </div>
+                </div>
+
+                <!-- Tabla planes -->
+                <div class="empresa-panel empresa-lista">
+                    <h3>Mis planes configurados</h3>
+                    <p class="nota">
+                        Estos planes se mostrarán a los clientes que seleccionen tu empresa en la vista pública.
+                    </p>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Bajada</th>
+                            <th>Subida</th>
+                            <th>1:N</th>
+                            <th>Capacidad</th>
+                            <th>Precio</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tablaPlanesEmpresa"></tbody>
+                    </table>
+                    <button id="btnRestablecerPorDefecto" class="btn-link">
+                        Cargar 3 planes base demostrativos
+                    </button>
+                </div>
+            </div>
+        </section>
+    </section>
+</main>
+
+<footer class="footer">
+    <small>© 2025 ISPPlus · Demo educativa de gestión de planes (sin pagos reales).</small>
+</footer>
+
+<script>
+// --- Modelos y almacenamiento ---
+const STORAGE_USERS = "isp_users";
+const STORAGE_LOGGED = "isp_logged_user";
+const STORAGE_PLANES_PREFIX = "isp_planes_";
+const STORAGE_PLAN_CLIENTE_PREFIX = "isp_plan_cliente_";
+
+let currentRole = "cliente";
+let loggedUser = null;
+let planesEmpresaActual = [];
+let currentPlanIndex = 0;
+
+// Planes base demo para cualquier empresa nueva
+const defaultDemoPlans = [
+    {
+        id: 1,
+        nombre: "Plan 2200 Pyme",
+        bajada: 2200,
+        subida: 2200,
+        contencionN: 10,
+        maxClientes: 100,
+        precio: 34990,
+        tag: "2200 Mb 1:10 para 100 clientes"
+    },
+    {
+        id: 2,
+        nombre: "Plan 4000 Empresa",
+        bajada: 4000,
+        subida: 4000,
+        contencionN: 10,
+        maxClientes: 200,
+        precio: 54990,
+        tag: "4000 Mb 1:10 para 200 clientes"
+    },
+    {
+        id: 3,
+        nombre: "Plan 6000 Pro",
+        bajada: 6000,
+        subida: 6000,
+        contencionN: 10,
+        maxClientes: 200,
+        precio: 74990,
+        tag: "6000 Mb 1:10 para 200 clientes"
+    }
+];
+
+function loadUsers() {
+    const raw = localStorage.getItem(STORAGE_USERS);
+    if (!raw) {
+        // sembrar una empresa demo
+        const demoUsers = [
+            { username: "demoISP", password: "demo123", role: "empresa" }
+        ];
+        localStorage.setItem(STORAGE_USERS, JSON.stringify(demoUsers));
+        return demoUsers;
+    }
+    try {
+        return JSON.parse(raw);
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveUsers(users) {
+    localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
+}
+
+function loadLoggedUser() {
+    const raw = localStorage.getItem(STORAGE_LOGGED);
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch (e) { return null; }
+}
+
+function saveLoggedUser(user) {
+    if (!user) {
+        localStorage.removeItem(STORAGE_LOGGED);
+    } else {
+        localStorage.setItem(STORAGE_LOGGED, JSON.stringify(user));
+    }
+}
+
+function planesKeyForEmpresa(username) {
+    return STORAGE_PLANES_PREFIX + username;
+}
+
+function loadPlanesEmpresa(username) {
+    const key = planesKeyForEmpresa(username);
+    const raw = localStorage.getItem(key);
+    if (!raw) return [];
+    try { return JSON.parse(raw); } catch (e) { return []; }
+}
+
+function savePlanesEmpresa(username, planes) {
+    const key = planesKeyForEmpresa(username);
+    localStorage.setItem(key, JSON.stringify(planes));
+}
+
+function keyPlanCliente(username) {
+    return STORAGE_PLAN_CLIENTE_PREFIX + username;
+}
+
+function loadPlanCliente(username) {
+    const raw = localStorage.getItem(keyPlanCliente(username));
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch (e) { return null; }
+}
+
+function savePlanCliente(username, data) {
+    localStorage.setItem(keyPlanCliente(username), JSON.stringify(data));
+}
+
+// --- Utilidades ---
+
+function formatCLP(v) {
+    if (v === null || v === undefined || isNaN(v)) return "Sin precio";
+    return v.toLocaleString("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 });
+}
+
+function getAllEmpresas() {
+    const users = loadUsers();
+    return users.filter(function (u) { return u.role === "empresa"; });
+}
+
+// --- Estado UI común ---
+const roleButtons = document.querySelectorAll(".role-btn");
+const userInfoSpan = document.getElementById("userInfo");
+const logoutBtn = document.getElementById("logoutBtn");
+const vistaPublica = document.getElementById("vista-publica");
+const vistaEmpresa = document.getElementById("vista-empresa");
+const empresaContenido = document.getElementById("empresaContenido");
+const authEmpresaBox = document.getElementById("authEmpresaBox");
+const authClienteBox = document.getElementById("authClienteBox");
+const authClienteDesc = document.getElementById("authClienteDesc");
+
+function updateUserStatusUI() {
+    if (!loggedUser) {
+        userInfoSpan.textContent = "No has iniciado sesión";
+        logoutBtn.classList.add("hidden");
+    } else {
+        userInfoSpan.textContent = "Sesión: " + loggedUser.username + " (" + loggedUser.role + ")";
+        logoutBtn.classList.remove("hidden");
+    }
+
+    // Mostrar/ocultar cajas de auth según rol
+    if (currentRole === "empresa") {
+        if (loggedUser && loggedUser.role === "empresa") {
+            authEmpresaBox.classList.add("hidden");
+            empresaContenido.classList.remove("hidden");
+        } else {
+            authEmpresaBox.classList.remove("hidden");
+            empresaContenido.classList.add("hidden");
+        }
+    }
+
+    if (currentRole === "cliente" || currentRole === "invitado") {
+        if (loggedUser && loggedUser.role === "cliente") {
+            authClienteBox.classList.add("hidden");
+            authClienteDesc.textContent = "Estás identificado como cliente. Ya puedes contratar o cambiar de plan.";
+        } else {
+            authClienteBox.classList.remove("hidden");
+            authClienteDesc.textContent = "Inicia sesión o regístrate para poder contratar o cambiar de plan. Como invitado solo podrás ver los planes.";
+        }
+    }
+}
+
+logoutBtn.addEventListener("click", function () {
+    loggedUser = null;
+    saveLoggedUser(null);
+    updateUserStatusUI();
+    // recargar planes públicos (ahora invitado)
+    refreshPublicEmpresas();
+    renderPublicPlans();
+    updateClientePlanInfo();
+});
+
+function changeRole(role) {
+    currentRole = role;
+    roleButtons.forEach(function (btn) {
+        btn.classList.toggle("active", btn.dataset.role === role);
+    });
+
+    if (role === "empresa") {
+        vistaEmpresa.classList.remove("hidden");
+        vistaPublica.classList.add("hidden");
+    } else {
+        vistaPublica.classList.remove("hidden");
+        vistaEmpresa.classList.add("hidden");
+    }
+
+    updateUserStatusUI();
+}
+
+// --- Autenticación Cliente ---
+const loginClienteUsuario = document.getElementById("loginClienteUsuario");
+const loginClientePass = document.getElementById("loginClientePass");
+const btnLoginCliente = document.getElementById("btnLoginCliente");
+const regClienteUsuario = document.getElementById("regClienteUsuario");
+const regClientePass = document.getElementById("regClientePass");
+const btnRegCliente = document.getElementById("btnRegCliente");
+
+btnLoginCliente.addEventListener("click", function () {
+    const user = loginClienteUsuario.value.trim();
+    const pass = loginClientePass.value;
+    if (!user || !pass) {
+        alert("Completa usuario y contraseña.");
+        return;
+    }
+    const users = loadUsers();
+    const found = users.find(function (u) {
+        return u.username === user && u.password === pass && u.role === "cliente";
+    });
+    if (!found) {
+        alert("Credenciales incorrectas o usuario no es cliente.");
+        return;
+    }
+    loggedUser = found;
+    saveLoggedUser(found);
+    loginClienteUsuario.value = "";
+    loginClientePass.value = "";
+    updateUserStatusUI();
+    updateClientePlanInfo();
+    alert("Sesión iniciada como cliente.");
+});
+
+btnRegCliente.addEventListener("click", function () {
+    const user = regClienteUsuario.value.trim();
+    const pass = regClientePass.value;
+    if (!user || !pass) {
+        alert("Completa usuario y contraseña.");
+        return;
+    }
+    let users = loadUsers();
+    if (users.find(function (u) { return u.username === user; })) {
+        alert("Ya existe un usuario con ese nombre.");
+        return;
+    }
+    const nuevo = { username: user, password: pass, role: "cliente" };
+    users.push(nuevo);
+    saveUsers(users);
+    loggedUser = nuevo;
+    saveLoggedUser(nuevo);
+    regClienteUsuario.value = "";
+    regClientePass.value = "";
+    updateUserStatusUI();
+    updateClientePlanInfo();
+    alert("Cliente registrado e identificado.");
+});
+
+// --- Autenticación Empresa ---
+const loginEmpresaUsuario = document.getElementById("loginEmpresaUsuario");
+const loginEmpresaPass = document.getElementById("loginEmpresaPass");
+const btnLoginEmpresa = document.getElementById("btnLoginEmpresa");
+const regEmpresaUsuario = document.getElementById("regEmpresaUsuario");
+const regEmpresaPass = document.getElementById("regEmpresaPass");
+const btnRegEmpresa = document.getElementById("btnRegEmpresa");
+
+btnLoginEmpresa.addEventListener("click", function () {
+    const user = loginEmpresaUsuario.value.trim();
+    const pass = loginEmpresaPass.value;
+    if (!user || !pass) {
+        alert("Completa usuario y contraseña.");
+        return;
+    }
+    const users = loadUsers();
+    const found = users.find(function (u) {
+        return u.username === user && u.password === pass && u.role === "empresa";
+    });
+    if (!found) {
+        alert("Credenciales incorrectas o usuario no es empresa.");
+        return;
+    }
+    loggedUser = found;
+    saveLoggedUser(found);
+    loginEmpresaUsuario.value = "";
+    loginEmpresaPass.value = "";
+    updateUserStatusUI();
+    cargarPlanesEmpresaActual();
+    renderTablaEmpresa();
+    renderPublicPlans(); // por si esta empresa es seleccionada
+    alert("Sesión iniciada como empresa.");
+});
+
+btnRegEmpresa.addEventListener("click", function () {
+    const user = regEmpresaUsuario.value.trim();
+    const pass = regEmpresaPass.value;
+    if (!user || !pass) {
+        alert("Completa usuario y contraseña.");
+        return;
+    }
+    let users = loadUsers();
+    if (users.find(function (u) { return u.username === user; })) {
+        alert("Ya existe un usuario con ese nombre.");
+        return;
+    }
+    const nuevo = { username: user, password: pass, role: "empresa" };
+    users.push(nuevo);
+    saveUsers(users);
+    loggedUser = nuevo;
+    saveLoggedUser(nuevo);
+    // Crear planes demo para esta nueva empresa
+    savePlanesEmpresa(user, defaultDemoPlans);
+    regEmpresaUsuario.value = "";
+    regEmpresaPass.value = "";
+    updateUserStatusUI();
+    cargarPlanesEmpresaActual();
+    renderTablaEmpresa();
+    refreshPublicEmpresas();
+    renderPublicPlans();
+    alert("Empresa registrada e identificada. Se cargaron 3 planes base demo.");
+});
+
+// --- Role buttons ---
+roleButtons.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+        const rol = btn.dataset.role;
+        changeRole(rol);
+    });
+});
+
+// --- CLIENTE / INVITADO: Selector Empresa y slider ---
+const selectEmpresaPublica = document.getElementById("selectEmpresaPublica");
+const planCardEl = document.getElementById("planCard");
+const sliderDots = document.getElementById("sliderDots");
+const btnPrevPlan = document.getElementById("prevPlan");
+const btnNextPlan = document.getElementById("nextPlan");
+const infoPlanActualCliente = document.getElementById("infoPlanActualCliente");
+const btnContratarPlan = document.getElementById("btnContratarPlan");
+
+let empresaSeleccionadaPublica = null;
+
+function refreshPublicEmpresas() {
+    const empresas = getAllEmpresas();
+    // garantizar que exista demoISP con planes demo
+    if (!empresas.find(function (e) { return e.username === "demoISP"; })) {
+        let users = loadUsers();
+        if (!users.find(function (u) { return u.username === "demoISP"; })) {
+            users.push({ username: "demoISP", password: "demo123", role: "empresa" });
+            saveUsers(users);
+        }
+    }
+    const listaActualizada = getAllEmpresas();
+    selectEmpresaPublica.innerHTML = "";
+    listaActualizada.forEach(function (emp) {
+        const opt = document.createElement("option");
+        opt.value = emp.username;
+        opt.textContent = emp.username;
+        selectEmpresaPublica.appendChild(opt);
+    });
+    if (!empresaSeleccionadaPublica && listaActualizada.length) {
+        empresaSeleccionadaPublica = listaActualizada[0].username;
+    }
+    if (empresaSeleccionadaPublica) {
+        selectEmpresaPublica.value = empresaSeleccionadaPublica;
+    }
+}
+
+selectEmpresaPublica.addEventListener("change", function () {
+    empresaSeleccionadaPublica = selectEmpresaPublica.value;
+    currentPlanIndex = 0;
+    renderPublicPlans();
+    updateClientePlanInfo();
+});
+
+function getPlanesEmpresaPublica() {
+    if (!empresaSeleccionadaPublica) return [];
+    let planes = loadPlanesEmpresa(empresaSeleccionadaPublica);
+    if (!planes || !planes.length) {
+        // Si no hay planes, cargar demo para esa empresa
+        savePlanesEmpresa(empresaSeleccionadaPublica, defaultDemoPlans);
+        planes = defaultDemoPlans;
+    }
+    return planes;
+}
+
+function renderPublicPlans() {
+    const planes = getPlanesEmpresaPublica();
+    if (!planes.length) {
+        planCardEl.innerHTML = "<p>No hay planes configurados para esta empresa.</p>";
+        sliderDots.innerHTML = "";
+        return;
+    }
+    if (currentPlanIndex >= planes.length) currentPlanIndex = 0;
+    const plan = planes[currentPlanIndex];
+
+    planCardEl.innerHTML =
+        '<div class="plan-header">' +
+            '<div class="plan-nombre">' + plan.nombre + '</div>' +
+            '<div class="plan-tag">' + (plan.tag || "Plan disponible") + '</div>' +
+        '</div>' +
+        '<div class="plan-detalle">' +
+            '<p><strong>Bajada:</strong> ' + plan.bajada + ' Mb</p>' +
+            '<p><strong>Subida:</strong> ' + plan.subida + ' Mb</p>' +
+            '<p><strong>Contención:</strong> 1:' + plan.contencionN + '</p>' +
+            '<p><strong>Capacidad máxima:</strong> ' + plan.maxClientes + ' clientes</p>' +
+        '</div>' +
+        '<div>' +
+            '<div class="plan-precio">' + formatCLP(plan.precio) + '</div>' +
+            '<div class="plan-nota">Precios referenciales, sin contratación real.</div>' +
+        '</div>';
+
+    sliderDots.innerHTML = "";
+    planes.forEach(function (_, idx) {
+        const dot = document.createElement("div");
+        dot.classList.add("dot");
+        if (idx === currentPlanIndex) dot.classList.add("active");
+        dot.addEventListener("click", function () {
+            currentPlanIndex = idx;
+            renderPublicPlans();
+        });
+        sliderDots.appendChild(dot);
+    });
+}
+
+btnPrevPlan.addEventListener("click", function () {
+    const planes = getPlanesEmpresaPublica();
+    if (!planes.length) return;
+    currentPlanIndex = (currentPlanIndex - 1 + planes.length) % planes.length;
+    renderPublicPlans();
+});
+
+btnNextPlan.addEventListener("click", function () {
+    const planes = getPlanesEmpresaPublica();
+    if (!planes.length) return;
+    currentPlanIndex = (currentPlanIndex + 1) % planes.length;
+    renderPublicPlans();
+});
+
+// --- Cliente: info de plan actual y contratación ---
+function updateClientePlanInfo() {
+    if (!loggedUser || loggedUser.role !== "cliente") {
+        infoPlanActualCliente.textContent = "Estás navegando como invitado o sin sesión de cliente. No puedes contratar planes.";
+        return;
+    }
+    const data = loadPlanCliente(loggedUser.username);
+    if (!data) {
+        infoPlanActualCliente.textContent = "Aún no tienes un plan contratado.";
+        return;
+    }
+    const planes = loadPlanesEmpresa(data.empresa);
+    const plan = planes.find(function (p) { return p.id === data.planId; });
+    if (!plan) {
+        infoPlanActualCliente.textContent = "Tenías un plan contratado, pero ya no existe en la empresa.";
+        return;
+    }
+    infoPlanActualCliente.textContent = 'Tu plan actual es "' + plan.nombre + '" de la empresa ' + data.empresa + '.';
+}
+
+btnContratarPlan.addEventListener("click", function () {
+    const planes = getPlanesEmpresaPublica();
+    if (!planes.length) return;
+    const plan = planes[currentPlanIndex];
+    const empresa = empresaSeleccionadaPublica;
+
+    if (!loggedUser || loggedUser.role !== "cliente") {
+        alert("Debes iniciar sesión como cliente para contratar un plan. Los invitados solo pueden mirar.");
+        return;
+    }
+
+    const actual = loadPlanCliente(loggedUser.username);
+    if (!actual) {
+        const ok = confirm('¿Confirmas contratar el plan "' + plan.nombre + '" de la empresa ' + empresa + '?');
+        if (!ok) return;
+        savePlanCliente(loggedUser.username, { empresa: empresa, planId: plan.id });
+        updateClientePlanInfo();
+        alert("Plan contratado (simulado).");
+    } else {
+        const planesActualEmpresa = loadPlanesEmpresa(actual.empresa);
+        const planActual = planesActualEmpresa.find(function (p) { return p.id === actual.planId; });
+        const nombreActual = planActual ? planActual.nombre : "(desconocido)";
+        const ok = confirm(
+            'Actualmente tienes "' + nombreActual + '" de ' + actual.empresa +
+            '.\n¿Quieres cambiarlo por "' + plan.nombre + '" de ' + empresa + '?'
+        );
+        if (!ok) return;
+        savePlanCliente(loggedUser.username, { empresa: empresa, planId: plan.id });
+        updateClientePlanInfo();
+        alert("Plan cambiado (simulado).");
+    }
+});
+
+// --- EMPRESA: gestión de planes y calculadora ---
+const formTitleEl = document.getElementById("formTitle");
+const inputNombre = document.getElementById("planNombre");
+const inputBajada = document.getElementById("planBajada");
+const inputSubida = document.getElementById("planSubida");
+const inputContencionN = document.getElementById("planContencionN");
+const inputMaxClientes = document.getElementById("planMaxClientes");
+const inputPrecio = document.getElementById("planPrecio");
+const btnGuardarPlan = document.getElementById("btnGuardarPlan");
+const btnCancelarEdicion = document.getElementById("btnCancelarEdicion");
+const tablaPlanesEmpresa = document.getElementById("tablaPlanesEmpresa");
+const btnRestablecerPorDefecto = document.getElementById("btnRestablecerPorDefecto");
+
+let modoEdicionId = null;
+
+function cargarPlanesEmpresaActual() {
+    if (!loggedUser || loggedUser.role !== "empresa") {
+        planesEmpresaActual = [];
+        return;
+    }
+    let planes = loadPlanesEmpresa(loggedUser.username);
+    if (!planes || !planes.length) {
+        // Si no hay, cargar demo por conveniencia
+        savePlanesEmpresa(loggedUser.username, defaultDemoPlans);
+        planes = defaultDemoPlans;
+    }
+    planesEmpresaActual = planes;
+}
+
+function renderTablaEmpresa() {
+    if (!loggedUser || loggedUser.role !== "empresa") {
+        tablaPlanesEmpresa.innerHTML = "";
+        return;
+    }
+    tablaPlanesEmpresa.innerHTML = "";
+    planesEmpresaActual.forEach(function (plan) {
+        const tr = document.createElement("tr");
+
+        const tdNombre = document.createElement("td");
+        tdNombre.textContent = plan.nombre;
+
+        const tdBajada = document.createElement("td");
+        tdBajada.textContent = plan.bajada + " Mb";
+
+        const tdSubida = document.createElement("td");
+        tdSubida.textContent = plan.subida + " Mb";
+
+        const tdContencion = document.createElement("td");
+        tdContencion.textContent = "1:" + plan.contencionN;
+
+        const tdCapacidad = document.createElement("td");
+        tdCapacidad.textContent = plan.maxClientes;
+
+        const tdPrecio = document.createElement("td");
+        tdPrecio.textContent = formatCLP(plan.precio);
+
+        const tdAcciones = document.createElement("td");
+        const accionesDiv = document.createElement("div");
+        accionesDiv.classList.add("acciones-btn");
+
+        const btnEdit = document.createElement("button");
+        btnEdit.textContent = "Editar";
+        btnEdit.className = "btn-small btn-small-edit";
+        btnEdit.addEventListener("click", function () {
+            comenzarEdicionPlan(plan.id);
+        });
+
+        const btnDel = document.createElement("button");
+        btnDel.textContent = "Eliminar";
+        btnDel.className = "btn-small btn-small-delete";
+        btnDel.addEventListener("click", function () {
+            eliminarPlan(plan.id);
+        });
+
+        accionesDiv.appendChild(btnEdit);
+        accionesDiv.appendChild(btnDel);
+        tdAcciones.appendChild(accionesDiv);
+
+        tr.appendChild(tdNombre);
+        tr.appendChild(tdBajada);
+        tr.appendChild(tdSubida);
+        tr.appendChild(tdContencion);
+        tr.appendChild(tdCapacidad);
+        tr.appendChild(tdPrecio);
+        tr.appendChild(tdAcciones);
+
+        tablaPlanesEmpresa.appendChild(tr);
+    });
+}
+
+function limpiarFormularioPlan() {
+    inputNombre.value = "";
+    inputBajada.value = "";
+    inputSubida.value = "";
+    inputContencionN.value = "";
+    inputMaxClientes.value = "";
+    inputPrecio.value = "";
+}
+
+function comenzarEdicionPlan(id) {
+    const plan = planesEmpresaActual.find(function (p) { return p.id === id; });
+    if (!plan) return;
+    modoEdicionId = id;
+    formTitleEl.textContent = "Editar plan";
+    btnGuardarPlan.textContent = "Guardar cambios";
+    btnCancelarEdicion.classList.remove("hidden");
+
+    inputNombre.value = plan.nombre;
+    inputBajada.value = plan.bajada;
+    inputSubida.value = plan.subida;
+    inputContencionN.value = plan.contencionN;
+    inputMaxClientes.value = plan.maxClientes;
+    inputPrecio.value = plan.precio;
+}
+
+function cancelarEdicionPlan() {
+    modoEdicionId = null;
+    formTitleEl.textContent = "Crear nuevo plan";
+    btnGuardarPlan.textContent = "Guardar plan";
+    btnCancelarEdicion.classList.add("hidden");
+    limpiarFormularioPlan();
+}
+
+btnCancelarEdicion.addEventListener("click", cancelarEdicionPlan);
+
+btnGuardarPlan.addEventListener("click", function () {
+    if (!loggedUser || loggedUser.role !== "empresa") {
+        alert("Debes estar identificado como empresa para guardar planes.");
+        return;
+    }
+    const nombre = inputNombre.value.trim();
+    const bajada = Number(inputBajada.value);
+    const subida = Number(inputSubida.value);
+    const contencionN = Number(inputContencionN.value);
+    const maxClientes = Number(inputMaxClientes.value);
+    const precio = Number(inputPrecio.value);
+
+    if (!nombre || !bajada || !subida || !contencionN || !maxClientes || !precio) {
+        alert("Completa todos los campos del plan.");
+        return;
+    }
+
+    if (modoEdicionId) {
+        const idx = planesEmpresaActual.findIndex(function (p) { return p.id === modoEdicionId; });
+        if (idx !== -1) {
+            planesEmpresaActual[idx] = {
+                id: planesEmpresaActual[idx].id,
+                nombre: nombre,
+                bajada: bajada,
+                subida: subida,
+                contencionN: contencionN,
+                maxClientes: maxClientes,
+                precio: precio,
+                tag: planesEmpresaActual[idx].tag || "Plan personalizado"
+            };
+        }
+    } else {
+        const nuevoId = planesEmpresaActual.length
+            ? Math.max.apply(null, planesEmpresaActual.map(function (p) { return p.id; })) + 1
+            : 1;
+        planesEmpresaActual.push({
+            id: nuevoId,
+            nombre: nombre,
+            bajada: bajada,
+            subida: subida,
+            contencionN: contencionN,
+            maxClientes: maxClientes,
+            precio: precio,
+            tag: "Plan personalizado"
+        });
+    }
+    savePlanesEmpresa(loggedUser.username, planesEmpresaActual);
+    renderTablaEmpresa();
+    // Si la empresa actual es la seleccionada públicamente, refrescar
+    if (empresaSeleccionadaPublica === loggedUser.username) {
+        renderPublicPlans();
+    }
+    cancelarEdicionPlan();
+});
+
+function eliminarPlan(id) {
+    if (!confirm("¿Eliminar este plan?")) return;
+    planesEmpresaActual = planesEmpresaActual.filter(function (p) { return p.id !== id; });
+    if (loggedUser && loggedUser.role === "empresa") {
+        savePlanesEmpresa(loggedUser.username, planesEmpresaActual);
+    }
+    renderTablaEmpresa();
+    if (empresaSeleccionadaPublica === (loggedUser && loggedUser.username)) {
+        currentPlanIndex = 0;
+        renderPublicPlans();
+    }
+}
+
+btnRestablecerPorDefecto.addEventListener("click", function () {
+    if (!loggedUser || loggedUser.role !== "empresa") {
+        alert("Debes iniciar sesión como empresa.");
+        return;
+    }
+    if (!confirm("Se reemplazarán tus planes actuales por los 3 planes base demo. ¿Continuar?")) return;
+    planesEmpresaActual = JSON.parse(JSON.stringify(defaultDemoPlans));
+    savePlanesEmpresa(loggedUser.username, planesEmpresaActual);
+    renderTablaEmpresa();
+    if (empresaSeleccionadaPublica === loggedUser.username) {
+        currentPlanIndex = 0;
+        renderPublicPlans();
+    }
+});
+
+// --- Calculadora ---
+const calcBajada = document.getElementById("calcBajada");
+const calcContencionN = document.getElementById("calcContencionN");
+const calcClientesActivos = document.getElementById("calcClientesActivos");
+const btnCalcular = document.getElementById("btnCalcular");
+const calcResultados = document.getElementById("calcResultados");
+
+btnCalcular.addEventListener("click", function () {
+    const bajada = Number(calcBajada.value);
+    const n = Number(calcContencionN.value);
+    const clientes = Number(calcClientesActivos.value);
+    if (!bajada || !n || !clientes) {
+        alert("Completa todos los campos de la calculadora.");
+        return;
+    }
+    const anchoPorClienteTeorico = bajada / n;
+    const anchoPorClienteConcurrencia = bajada / clientes;
+    const recomendadoMinimo = Math.min(anchoPorClienteTeorico, anchoPorClienteConcurrencia);
+
+    calcResultados.innerHTML =
+        "<p><strong>Velocidad teórica por cliente (por contención 1:" + n + "):</strong> " +
+            anchoPorClienteTeorico.toFixed(2) + " Mb</p>" +
+        "<p><strong>Velocidad por cliente si todos navegan a la vez:</strong> " +
+            anchoPorClienteConcurrencia.toFixed(2) + " Mb</p>" +
+        "<p><strong>Velocidad mínima recomendada por cliente (aprox.):</strong> " +
+            recomendadoMinimo.toFixed(2) + " Mb</p>";
+});
+
+// --- Inicialización ---
+(function init() {
+    // Cargar usuarios y logged
+    loadUsers();
+    loggedUser = loadLoggedUser();
+    refreshPublicEmpresas();
+    renderPublicPlans();
+    if (loggedUser && loggedUser.role === "empresa") {
+        cargarPlanesEmpresaActual();
+        renderTablaEmpresa();
+    }
+    updateUserStatusUI();
+    updateClientePlanInfo();
+    changeRole("cliente");
+})();
+</script>
+
+</body>
+</html>
