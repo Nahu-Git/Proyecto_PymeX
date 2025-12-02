@@ -1,7 +1,7 @@
 proyecto_ispplus/
 ├─ main.py                  # Punto de entrada del programa (menús y flujo general)
 ├─ config.py                # Configuración global (ruta BD, URL API, etc.)
-├─ db/
+├─ db/                        #Jordan
 │  ├─ connection.py         # Clase para manejar la conexión a la base de datos
 │  └─ schema.sql            # Script SQL para crear todas las tablas necesarias
 ├─ modelos/                   #Matias
