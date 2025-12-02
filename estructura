@@ -4,14 +4,14 @@ proyecto_ispplus/
 ├─ db/
 │  ├─ connection.py         # Clase para manejar la conexión a la base de datos
 │  └─ schema.sql            # Script SQL para crear todas las tablas necesarias
-├─ modelos/
+├─ modelos/                   #Matias
 │  ├─ usuario.py            # Clase Usuario y enum de roles
 │  ├─ empresa.py            # Clase Empresa ISP
 │  ├─ cliente.py            # Clase Cliente final
 │  ├─ plan.py               # Clase Plan de internet
 │  ├─ contrato.py           # Clase ContratoPlan entre cliente y plan
 │  └─ indicadores.py        # Clases para IndicadorEconomico y ConsultaIndicador
-├─ repositorios/
+├─ repositorios/              #Jordan
 │  ├─ base.py               # Clase abstracta BaseRepositorio (CRUD genérico)
 │  ├─ usuario_repo.py       # Repositorio concreto para Usuario
 │  ├─ empresa_repo.py       # Repositorio concreto para Empresa
@@ -19,7 +19,7 @@ proyecto_ispplus/
 │  ├─ plan_repo.py          # Repositorio concreto para Plan
 │  ├─ contrato_repo.py      # Repositorio concreto para ContratoPlan
 │  └─ indicadores_repo.py   # Repositorio para IndicadorEconomico y ConsultaIndicador
-├─ servicios/
+├─ servicios/                 #Jeffrey
 │  ├─ auth_service.py       # Lógica de registro/login, hash, validaciones
 │  ├─ plan_service.py       # Lógica de negocio de planes/contratos
 │  └─ indicadores_service.py# Lógica para consultar y guardar indicadores económicos
